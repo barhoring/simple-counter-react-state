@@ -6,10 +6,16 @@ const getStateFromLocalStorage = () => {
   return { count: 0 };
 };
 
+const storeStateInLocalStorage = (state) => {
+  localStorage.setItem('counterState', JSON.stringify(state));
+  console.log(localStorage);
+};
+
 class Counter extends Component {
   constructor(props) {
     super(props);
     this.state = getStateFromLocalStorage();
+
     this.increment = this.increment.bind(this);
     this.decrement = this.decrement.bind(this);
     this.reset = this.reset.bind(this);
@@ -18,44 +24,42 @@ class Counter extends Component {
   increment() {
     this.setState(
       (state, props) => {
-        const { count } = state;
         const { max, step } = props;
-        if (count >= max) return;
-        return { count: count + step };
+        if (state.count >= max) return;
+        return { count: this.state.count + step };
       },
-      () => {
-        console.log('after:', this.state);
-        document.title = `Counter ${this.state.count}`;
-        localStorage.setItem('counterState', JSON.stringify(this.state));
-      },
+      () => storeStateInLocalStorage(this.state),
     );
-    console.log('before:', this.state);
+    console.log('Before!', this.state);
   }
 
   decrement() {
-    this.setState(({ count }) => ({
-      count: count - 1,
-    }));
+    this.setState(
+      (state, props) => {
+        const { step } = props;
+        if (state.count <= 0) return;
+        return { count: this.state.count - step };
+      },
+      () => storeStateInLocalStorage(this.state),
+    );
   }
 
   reset() {
-    this.setState(({ count }) => ({
-      count: 0,
-    }));
+    this.setState({ count: 0 }, () => storeStateInLocalStorage(this.state));
   }
 
   render() {
     const { count } = this.state;
 
     return (
-      <div className="Counter">
+      <main className="Counter">
         <p className="count">{count}</p>
         <section className="controls">
           <button onClick={this.increment}>Increment</button>
           <button onClick={this.decrement}>Decrement</button>
           <button onClick={this.reset}>Reset</button>
         </section>
-      </div>
+      </main>
     );
   }
 }
