@@ -12,8 +12,23 @@ const storeStateInLocalStorage = (count) => {
   console.log(localStorage);
 };
 
+const useLocalStorage = (initialState, key) => {
+  const get = () => {
+    const storage = localStorage.getItem(key);
+    return storage ? JSON.parse(storage).value : initialState;
+  };
+
+  const [value, setValue] = useState(get());
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify({ value }));
+  });
+
+  return [value, setValue];
+};
+
 const Counter = ({ max, step }) => {
-  const [count, setCount] = useState(getStateFromLocalStorage());
+  const [count, setCount] = useLocalStorage(0, 'count');
 
   /* It's ok to combine these two; A tradeof between Performance vs Architecture & Testabilty */
   useEffect(() => {
